@@ -12,9 +12,7 @@ import sys
 import os
 import math
 
-
 N = 1024
-
 
 WHITE = (255, 255, 255)
 BLUE = (100, 150, 255)
@@ -26,9 +24,13 @@ RES = 2
 
 pygame.init()
 surface = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption('Hello, World!')
+pygame.display.set_caption('Pitch Controlled Game')
 
-
+# This function takes a collection of data given as a list of floats,
+# and returns those numers plotted on a log scale. The resulting data
+# can be plotted on with 'output_range' as the x axis. The input data
+# is linearly interpolated between points in the output_range to get
+# the resulting data.
 # data: points to be plotted (pre logged)
 # output_range: the x values at which plots will occur
 def log_interpolate(data, output_range, x_scale):
@@ -73,47 +75,16 @@ def log_interpolate(data, output_range, x_scale):
   return map(int, output_data)
 
 
-class Spectrograph(object):
 
-  def __init__(self):
-    self.rows, self.columns = map(int, os.popen('stty size', 'r').read().split())
+def display_freq(interpolated, base, offset, colour):
 
-  def clear_display(self):
-    print chr(27) + "[2J"
+  x_val = 0
 
-  def print_freq(self, freq):
-    i = 0
-    for val in freq:
-      for j in range(0, val):
-        print "#",
-      print
-
-  def get_pt(self, x_val, i, base, offset):
-    y_scale = 1
-
-    x_pos = int(math.log(x_val + 1)*180) + offset
-    y_pos = int(math.log(i + 1) * 100)
-    y_pos = int(i)
-    top = (int(x_pos), max(0, HEIGHT - y_pos) - base)
-    bottom = (int(x_pos), HEIGHT - base)
-    return (bottom, top)
-
-  def display_freq(self, interpolated, base, offset, colour):
-
-#    interpolated = log_interpolate(map(lambda x: x*10, freq), range(WIDTH), 140)
-#    interpolated = log_interpolate(freq, range(WIDTH), 140)
-
-    x_val = 0
-
-    for i in interpolated:
-      x_pos = x_val
-      y_pos = i
-      pygame.draw.line(surface, colour, (x_pos, HEIGHT), (x_pos, HEIGHT - y_pos))
-#      pygame.draw.rect(surface, colour, pygame.Rect(x_pos, HEIGHT - y_pos, RES, y_pos))
-      x_val += + RES
-
-
-spec = Spectrograph()
+  for i in interpolated:
+    x_pos = x_val
+    y_pos = i
+    pygame.draw.line(surface, colour, (x_pos, HEIGHT), (x_pos, HEIGHT - y_pos))
+    x_val += + RES
 
 
 if len(sys.argv) < 2:
@@ -129,10 +100,13 @@ stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                 rate=wf.getframerate(),
                 output=True)
 nchannels = wf.getnchannels()
-data = None
-print "Channels: ", nchannels
+
+# used for finding the "dominant frequency"
 main_freq = -1
 move_count = 0
+
+
+data = None
 while data != '':
 
     data = wf.readframes(N)
@@ -145,8 +119,9 @@ while data != '':
     surface.fill(BLACK)
 
     freq = map(lambda x: min(x/7000, 700), map(int, map(abs, channel_l_freq)))
-    interpolated = freq #log_interpolate(map(lambda x: math.log(x+1)*100, freq), map(lambda x: RES * x, range(WIDTH/RES)), 160)
-    """
+    interpolated = log_interpolate(map(lambda x: math.log(x+1)*40, freq), map(lambda x: RES * x, range(WIDTH/RES)), 110)
+
+    # find the "dominant frequency"
     t_start = (len(interpolated)*2)/5
     t_end = (len(interpolated)*3)/4
     treble = interpolated[t_start:t_end]
@@ -170,11 +145,9 @@ while data != '':
         main_freq = freq
         move_count = 0
 
-    """
-
-    spec.display_freq(interpolated, 1, 0, WHITE)
-    #spec.display_freq(map(lambda x: min(x/7000, 700), map(int, map(abs, channel_r_freq))), 1, 0, RED)
-#    pygame.draw.rect(surface, RED, pygame.Rect((t_start + main_freq)*RES - 10, HEIGHT - 20, 20, 20))
+    # draw the spectograph
+    display_freq(interpolated, 1, 0, WHITE)
+    pygame.draw.rect(surface, RED, pygame.Rect((t_start + main_freq)*RES - 10, HEIGHT - 20, 20, 20))
     pygame.display.update()
 
     stream.write(data)
