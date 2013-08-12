@@ -1,10 +1,7 @@
-"""PyAudio Example: Play a WAVE file."""
-
-import pygame, sys
+import pygame
 from pygame.locals import *
 import struct
-from numpy.fft import ifft, fft, fftshift
-from numpy import fromstring, short, angle
+from numpy.fft import fft
 import numpy
 import pyaudio
 import wave

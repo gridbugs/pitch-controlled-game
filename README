@@ -1,0 +1,5 @@
+Dependencies (install with pip or your package manager):
+- pygame
+- numpy
+- pyaudio
+- wave
