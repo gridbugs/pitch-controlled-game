@@ -3,3 +3,14 @@ Dependencies (install with pip or your package manager):
 - numpy
 - pyaudio
 - wave
+
+Controls:
+    Move Up - up arrow/loud noise
+    Move Down - down arrow/low to no noise
+
+Meta Controls:
+    Start Movement - 1
+    Start Enemies (once movement has started) - 2
+    Restart (after winning or losing) - 3
+    Quit (after winning or losing) - 4
+    Nyan Cat! (once enemies have started) - 5
