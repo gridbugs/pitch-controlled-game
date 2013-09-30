@@ -1,3 +1,4 @@
+import pygame
 from config import *
 import math
 
@@ -50,7 +51,7 @@ def log_interpolate(data, output_range, x_scale):
   return map(int, output_data)
 
 
-def display_freq(interpolated, base, offset, colour):
+def display_freq(interpolated, base, offset, colour, surface):
 
   x_val = 0
 
