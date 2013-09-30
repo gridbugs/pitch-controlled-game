@@ -4,6 +4,8 @@ Dependencies (install with pip or your package manager):
 - pyaudio
 - wave
 
+Start the game with "python game.py"
+
 Controls:
     Move Up - up arrow/loud noise
     Move Down - down arrow/low to no noise
